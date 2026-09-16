@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Combinação Simples — com Batman</title>
+  <meta name="description" content="Apresentação interativa sobre Combinação Simples com o tema Batman para sala de aula." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bat-yellow: #FFD700;
+      --bat-gold: #F0A500;
+      --bat-black: #0A0A0A;
+      --bat-dark: #111111;
+      --bat-gray: #1E1E1E;
+      --bat-light: #2A2A2A;
+      --bat-white: #F0F0F0;
+      --glow: 0 0 20px rgba(255,215,0,0.6), 0 0 40px rgba(255,215,0,0.3);
+      --glow-sm: 0 0 10px rgba(255,215,0,0.5);
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--bat-black);
+      font-family: 'Outfit', sans-serif;
+      color: var(--bat-white);
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .presentation { width: 100vw; height: 100vh; position: relative; overflow: hidden; }
+
+    .slide {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 40px 60px;
+      opacity: 0; pointer-events: none;
+      transform: translateX(100%) scale(0.95);
+      transition: opacity 0.6s cubic-bezier(.77,0,.18,1), transform 0.6s cubic-bezier(.77,0,.18,1);
+      background: var(--bat-dark);
+    }
+
+    .slide.active { opacity: 1; pointer-events: all; transform: translateX(0) scale(1); }
+    .slide.exit-left { opacity: 0; transform: translateX(-100%) scale(0.95); }
+
+    .bat-bg { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+    .bat-icon { position: absolute; opacity: 0.04; animation: floatBat linear infinite; }
+
+    @keyframes floatBat {
+      0%   { transform: translateY(110vh) rotate(-5deg); opacity: 0; }
+      10%  { opacity: 0.04; }
+      90%  { opacity: 0.04; }
+      100% { transform: translateY(-20vh) rotate(5deg); opacity: 0; }
+    }
+
+    .slide > * { position: relative; z-index: 1; }
+
+    .progress-bar {
+      position: fixed; bottom: 0; left: 0; height: 4px;
+      background: linear-gradient(90deg, var(--bat-gold), var(--bat-yellow));
+      box-shadow: var(--glow-sm); transition: width 0.5s ease; z-index: 100;
+    }
+
+    .nav { position: fixed; bottom: 24px; right: 32px; display: flex; gap: 12px; z-index: 100; }
+
+    .nav-btn {
+      width: 50px; height: 50px; border-radius: 50%;
+      border: 2px solid var(--bat-yellow);
+      background: rgba(255,215,0,0.08);
+      color: var(--bat-yellow); font-size: 20px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.25s ease; backdrop-filter: blur(6px);
+    }
+
+    .nav-btn:hover { background: var(--bat-yellow); color: var(--bat-black); box-shadow: var(--glow); transform: scale(1.1); }
+    .nav-btn:disabled { opacity: 0.25; cursor: not-allowed; transform: none; }
+
+    .slide-counter { position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 100; }
+
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,215,0,0.25); transition: all 0.3s ease; cursor: pointer; }
+    .dot.active { background: var(--bat-yellow); box-shadow: var(--glow-sm); transform: scale(1.3); }
+
+    /* SLIDE 1 */
+    .slide-1 { background: linear-gradient(135deg, #050505 0%, #0f0f0f 40%, #1a1400 100%); overflow: hidden; }
+    .slide-1 .hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.35; }
+    .slide-1::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to right, rgba(0,0,0,0.9) 30%, rgba(0,0,0,0.3) 100%); z-index: 1; }
+    .slide-1 .content { position: relative; z-index: 2; width: 100%; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+
+    .bat-logo-svg { width: 80px; filter: drop-shadow(0 0 12px #FFD700); animation: pulseBat 2s ease-in-out infinite; }
+
+    @keyframes pulseBat {
+      0%, 100% { filter: drop-shadow(0 0 12px #FFD700); }
+      50%       { filter: drop-shadow(0 0 24px #FFD700) drop-shadow(0 0 40px #F0A500); }
+    }
+
+    .tag-math { font-size: 11px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--bat-yellow); background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.3); padding: 6px 16px; border-radius: 999px; }
+
+    .title-main { font-family: 'Bangers', cursive; font-size: clamp(52px, 8vw, 100px); letter-spacing: 4px; line-height: 1; color: #fff; text-shadow: 4px 4px 0px #FFD700, 0 0 60px rgba(255,215,0,0.3); }
+    .title-main span { color: var(--bat-yellow); }
+
+    .title-sub { font-size: clamp(16px, 2vw, 22px); font-weight: 300; color: rgba(255,255,255,0.65); max-width: 500px; line-height: 1.6; }
+
+    .presenter-info { margin-top: 12px; display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,0.5); font-size: 13px; }
+    .presenter-info::before { content: ''; display: block; width: 40px; height: 1px; background: var(--bat-yellow); }
+
+    /* SLIDE 2 */
+    .slide-2 { background: radial-gradient(ellipse at 70% 50%, #1a1200 0%, #090909 70%); }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; width: 100%; align-items: center; }
+
+    .section-label { font-size: 11px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: var(--bat-yellow); margin-bottom: 8px; }
+
+    .slide-title { font-family: 'Bangers', cursive; font-size: clamp(36px, 5vw, 60px); letter-spacing: 2px; line-height: 1.1; margin-bottom: 20px; }
+    .slide-title span { color: var(--bat-yellow); }
+
+    .info-card { background: rgba(255,215,0,0.05); border: 1px solid rgba(255,215,0,0.15); border-radius: 16px; padding: 20px 24px; margin-bottom: 12px; transition: border-color 0.3s; }
+    .info-card:hover { border-color: rgba(255,215,0,0.4); }
+    .info-card .card-title { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--bat-yellow); margin-bottom: 6px; }
+    .info-card p { font-size: 14px; line-height: 1.6; color: rgba(255,255,255,0.75); }
+
+    .batman-visual { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+    .batman-silhouette { width: 240px; border-radius: 16px; filter: drop-shadow(0 0 30px rgba(255,215,0,0.5)); animation: heroFloat 3s ease-in-out infinite; object-fit: cover; }
+
+    @keyframes heroFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+
+    .stat-row { display: flex; gap: 16px; }
+    .stat-box { background: rgba(255,215,0,0.08); border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 14px 18px; text-align: center; flex: 1; }
+    .stat-box .val { font-family: 'Bangers', cursive; font-size: 28px; color: var(--bat-yellow); letter-spacing: 1px; }
+    .stat-box .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+
+    /* SLIDE 3 */
+    .slide-3 { background: radial-gradient(ellipse at 30% 30%, #0d0d00 0%, #080808 70%); }
+
+    .def-box { background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,215,0,0.03)); border: 2px solid var(--bat-yellow); border-radius: 20px; padding: 28px 36px; text-align: center; box-shadow: var(--glow), inset 0 0 60px rgba(255,215,0,0.03); max-width: 700px; margin: 24px 0; }
+    .def-box p { font-size: clamp(14px, 1.8vw, 18px); line-height: 1.7; color: rgba(255,255,255,0.9); }
+    .def-box p strong { color: var(--bat-yellow); }
+
+    .rules-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; max-width: 700px; }
+
+    .rule-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 18px 20px; display: flex; gap: 14px; align-items: flex-start; transition: border-color 0.3s, transform 0.3s; }
+    .rule-card:hover { border-color: rgba(255,215,0,0.4); transform: translateY(-3px); }
+    .rule-icon { font-size: 26px; flex-shrink: 0; }
+    .rule-card h3 { font-size: 13px; font-weight: 700; color: var(--bat-yellow); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+    .rule-card p { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.5; }
+
+    /* SLIDE 4 */
+    .slide-4 { background: radial-gradient(ellipse at center, #100800 0%, #050505 80%); }
+
+    .scene-box { background: rgba(255,215,0,0.04); border: 1px solid rgba(255,215,0,0.2); border-radius: 20px; padding: 24px 32px; width: 100%; max-width: 900px; margin: 16px 0; }
+
+    .speech-bubble { background: rgba(255,215,0,0.1); border: 1.5px solid rgba(255,215,0,0.35); border-radius: 16px; padding: 18px 24px; position: relative; margin-bottom: 24px; font-style: italic; font-size: clamp(13px, 1.6vw, 16px); line-height: 1.7; color: rgba(255,255,255,0.85); }
+    .speech-bubble::before { content: '🦇'; position: absolute; top: -14px; left: 24px; font-size: 20px; }
+
+    .heroes-grid { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+
+    .hero-chip { background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.12); border-radius: 999px; padding: 10px 20px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease; cursor: pointer; }
+    .hero-chip:hover, .hero-chip.selected { background: rgba(255,215,0,0.15); border-color: var(--bat-yellow); color: var(--bat-yellow); transform: translateY(-3px); box-shadow: 0 4px 20px rgba(255,215,0,0.2); }
+
+    .scene-question { background: rgba(255,215,0,0.08); border-left: 4px solid var(--bat-yellow); border-radius: 0 12px 12px 0; padding: 14px 20px; font-size: clamp(13px, 1.5vw, 15px); color: rgba(255,255,255,0.8); margin-top: 16px; }
+    .scene-question strong { color: var(--bat-yellow); }
+
+    /* SLIDE 5 */
+    .slide-5 { background: radial-gradient(ellipse at 50% 60%, #0f0a00 0%, #060606 70%); }
+
+    .formula-hero { background: linear-gradient(135deg, rgba(255,215,0,0.12), rgba(255,215,0,0.04)); border: 2px solid var(--bat-yellow); border-radius: 24px; padding: 32px 48px; text-align: center; box-shadow: var(--glow); margin: 20px 0; width: 100%; max-width: 600px; }
+    .formula-label { font-size: 12px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; color: rgba(255,215,0,0.6); margin-bottom: 16px; }
+    .formula-text { font-family: 'Bangers', cursive; font-size: clamp(36px, 6vw, 72px); letter-spacing: 3px; color: var(--bat-yellow); text-shadow: var(--glow); line-height: 1.1; }
+    .formula-fraction { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; gap: 4px; }
+    .frac-top { border-bottom: 3px solid var(--bat-yellow); padding-bottom: 4px; }
+
+    .vars-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; width: 100%; max-width: 600px; }
+    .var-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 16px; text-align: center; }
+    .var-sym { font-family: 'Bangers', cursive; font-size: 28px; color: var(--bat-yellow); letter-spacing: 2px; }
+    .var-desc { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 4px; line-height: 1.4; }
+
+    .example-strip { background: rgba(255,215,0,0.06); border: 1px solid rgba(255,215,0,0.15); border-radius: 14px; padding: 16px 24px; text-align: center; font-size: 14px; color: rgba(255,255,255,0.75); max-width: 600px; line-height: 1.8; }
+    .example-strip strong { color: var(--bat-yellow); }
+
+    /* SLIDE 6 */
+    .slide-6 { background: radial-gradient(ellipse at 50% 50%, #0b0800 0%, #050505 80%); }
+
+    .quiz-box { background: rgba(255,215,0,0.04); border: 2px solid rgba(255,215,0,0.2); border-radius: 20px; padding: 28px 36px; width: 100%; max-width: 800px; margin: 16px 0; }
+    .quiz-question { font-size: clamp(14px, 1.7vw, 17px); line-height: 1.7; color: rgba(255,255,255,0.9); margin-bottom: 24px; }
+    .quiz-question strong { color: var(--bat-yellow); }
+
+    .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .option-btn { background: rgba(255,255,255,0.04); border: 1.5px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 14px 20px; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 600; color: var(--bat-white); cursor: pointer; text-align: left; transition: all 0.25s ease; display: flex; align-items: center; gap: 12px; }
+    .option-btn .opt-letter { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,215,0,0.15); border: 1px solid rgba(255,215,0,0.3); color: var(--bat-yellow); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .option-btn:hover:not(:disabled) { border-color: rgba(255,215,0,0.5); background: rgba(255,215,0,0.08); transform: translateY(-2px); }
+    .option-btn.correct { border-color: #22c55e; background: rgba(34,197,94,0.12); color: #86efac; }
+    .option-btn.correct .opt-letter { background: rgba(34,197,94,0.2); border-color: #22c55e; color: #22c55e; }
+    .option-btn.wrong { border-color: #ef4444; background: rgba(239,68,68,0.1); color: #fca5a5; }
+    .option-btn.wrong .opt-letter { background: rgba(239,68,68,0.15); border-color: #ef4444; color: #ef4444; }
+    .option-btn:disabled { cursor: default; transform: none; }
+
+    .feedback-panel { margin-top: 16px; padding: 16px 20px; border-radius: 14px; font-size: 14px; line-height: 1.6; display: none; }
+    .feedback-panel.show { display: block; animation: fadeSlide 0.4s ease; }
+
+    @keyframes fadeSlide { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .feedback-panel.correct-fb { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #86efac; }
+    .feedback-panel.wrong-fb { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); color: #fca5a5; }
+
+    .step-by-step { margin-top: 20px; display: none; }
+    .step-by-step.show { display: block; animation: fadeSlide 0.5s ease 0.2s both; }
+
+    .step { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 12px; }
+    .step-num { width: 28px; height: 28px; border-radius: 50%; background: rgba(255,215,0,0.15); border: 1px solid rgba(255,215,0,0.3); color: var(--bat-yellow); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .step-text { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.6; }
+    .step-text strong { color: var(--bat-yellow); }
+
+    .slide.active .anim-up { animation: animUp 0.6s cubic-bezier(.22,1,.36,1) both; }
+    .slide.active .anim-up:nth-child(1) { animation-delay: 0.05s; }
+    .slide.active .anim-up:nth-child(2) { animation-delay: 0.15s; }
+    .slide.active .anim-up:nth-child(3) { animation-delay: 0.25s; }
+    .slide.active .anim-up:nth-child(4) { animation-delay: 0.35s; }
+    .slide.active .anim-up:nth-child(5) { animation-delay: 0.45s; }
+
+    @keyframes animUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+    .kbd-hint { position: fixed; top: 20px; right: 24px; font-size: 11px; color: rgba(255,255,255,0.2); z-index: 100; letter-spacing: 1px; }
+
+    .reset-btn { margin-top: 12px; background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.3); border-radius: 8px; padding: 8px 18px; font-family: 'Outfit', sans-serif; font-size: 13px; color: var(--bat-yellow); cursor: pointer; transition: all 0.2s ease; display: none; }
+    .reset-btn.show { display: inline-block; }
+    .reset-btn:hover { background: rgba(255,215,0,0.2); }
+
+    @media (max-width: 768px) {
+      .two-col { grid-template-columns: 1fr; }
+      .batman-visual { display: none; }
+      .slide { padding: 24px; }
+      .vars-grid { grid-template-columns: 1fr 1fr; }
+      .options-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bat-bg" id="batBg"></div>
+<div class="progress-bar" id="progressBar"></div>
+<div class="kbd-hint">← → para navegar</div>
+
+<!-- SLIDE 1: TITLE -->
+<div class="presentation">
+<div class="slide slide-1 active" id="slide-0">
+  <img
+    src="batman_hero.jpg"
+    class="hero-img"
+    alt="Batman sobre Gotham"
+    onerror="this.style.display='none'"
+  />
+  <div class="content">
+    <div class="anim-up">
+      <svg class="bat-logo-svg" viewBox="0 0 100 50" fill="#FFD700" xmlns="http://www.w3.org/2000/svg">
+        <path d="M50 10 C30 10 10 30 0 45 C10 40 20 38 30 42 C35 30 42 25 50 25 C58 25 65 30 70 42 C80 38 90 40 100 45 C90 30 70 10 50 10Z"/>
+        <path d="M50 22 C44 22 40 28 38 35 C42 32 46 30 50 30 C54 30 58 32 62 35 C60 28 56 22 50 22Z"/>
+      </svg>
+    </div>
+    <div class="anim-up"><div class="tag-math">Matemática — Análise Combinatória</div></div>
+    <div class="anim-up"><h1 class="title-main">Combinação<br/><span>Simples</span></h1></div>
+    <div class="anim-up"><p class="title-sub">Como o Cavaleiro das Trevas usa a matemática para salvar Gotham City.</p></div>
+    <div class="anim-up"><div class="presenter-info">Apresentação Interativa &nbsp;•&nbsp; Análise Combinatória</div></div>
+  </div>
+</div>
+
+<!-- SLIDE 2: BATMAN -->
+<div class="slide slide-2" id="slide-1">
+  <div class="two-col" style="height:100%;">
+    <!-- Left: text -->
+    <div style="display:flex; flex-direction:column; justify-content:center; gap:0;">
+      <p class="section-label anim-up">O Personagem</p>
+      <h2 class="slide-title anim-up">Quem é o <span>Batman?</span></h2>
+      <div class="info-card anim-up">
+        <div class="card-title">🦇 A Origem</div>
+        <p>Bruce Wayne assistiu ao assassinato de seus pais quando criança em Gotham City. Após anos de treinamento, tornou-se Batman — o Cavaleiro das Trevas — para proteger sua cidade.</p>
+      </div>
+      <div class="info-card anim-up">
+        <div class="card-title">🧠 O Gênio Estrategista</div>
+        <p>Batman não tem superpoderes. Sua maior arma é a <strong style="color:var(--bat-yellow)">inteligência</strong>. Ele planeja cada missão com precisão matemática, calculando as melhores combinações de aliados, gadgets e estratégias.</p>
+      </div>
+      <div class="info-card anim-up">
+        <div class="card-title">⚡ A Conexão com a Matemática</div>
+        <p>Para montar equipes ou escolher equipamentos, Batman precisa saber <strong style="color:var(--bat-yellow)">quantas formas diferentes</strong> existem de selecionar elementos — exatamente o que a <em>Combinação Simples</em> resolve!</p>
+      </div>
+    </div>
+    <!-- Right: Batman image -->
+    <div class="anim-up" style="display:flex; align-items:center; justify-content:center; height:100%;">
+      <img
+        src="batman_comic.jpg"
+        alt="Batman"
+        style="width:100%; max-height:80vh; object-fit:cover; border-radius:20px; filter:drop-shadow(0 0 30px rgba(255,215,0,0.45));"
+      />
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 3: DEFINITION -->
+<div class="slide slide-3" id="slide-2">
+  <p class="section-label anim-up">A Teoria</p>
+  <h2 class="slide-title anim-up" style="text-align:center;">O que é <span>Combinação Simples?</span></h2>
+  <div class="def-box anim-up">
+    <p>
+      Combinação Simples é uma forma de contar <strong>quantas maneiras diferentes</strong> podemos
+      <strong>selecionar</strong> um grupo de elementos a partir de um conjunto maior,
+      <strong>sem repetição</strong> e onde a <strong>ordem não importa</strong>.
+    </p>
+  </div>
+  <div class="rules-grid anim-up">
+    <div class="rule-card">
+      <span class="rule-icon">🔢</span>
+      <div><h3>Sem Repetição</h3><p>Cada elemento pode ser escolhido apenas uma vez no grupo selecionado.</p></div>
+    </div>
+    <div class="rule-card">
+      <span class="rule-icon">🔄</span>
+      <div><h3>Ordem Não Importa</h3><p>A equipe {Robin, Alfred} é igual a {Alfred, Robin} — são a mesma seleção!</p></div>
+    </div>
+    <div class="rule-card">
+      <span class="rule-icon">📦</span>
+      <div><h3>Seleção de Subconjuntos</h3><p>Sempre escolhemos <em>p</em> elementos de um universo de <em>n</em> disponíveis.</p></div>
+    </div>
+    <div class="rule-card">
+      <span class="rule-icon">⚡</span>
+      <div><h3>Diferente de Permutação</h3><p>Na permutação, a ordem muda o resultado. Na combinação, não!</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 4: BATMAN SCENE -->
+<div class="slide slide-4" id="slide-3">
+  <p class="section-label anim-up">Batman em Ação</p>
+  <h2 class="slide-title anim-up" style="text-align:center;">A <span>Missão da Liga da Justiça</span></h2>
+  
+  <div class="scene-box anim-up" style="max-width:960px; width:100%; border:none; background:transparent; padding:0; margin-top:10px;">
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;">
+      
+      <!-- Esquerda: A Missão -->
+      <div style="display:flex; flex-direction:column; gap:20px;">
+        <div class="speech-bubble" style="margin-bottom:0;">
+          <em>"Alfred, o Coringa escapou e está planejando um ataque simultâneo em 3 pontos de Gotham.
+          Preciso montar uma equipe de <strong style="color:#FFD700">3 aliados</strong> a partir dos
+          <strong style="color:#FFD700">6 heróis</strong> disponíveis da Liga da Justiça.
+          Quantas formações diferentes posso montar?"</em>
+          <div style="margin-top:16px; font-size:12px; font-style:normal; color:rgba(255,255,255,0.5); font-weight:600;">— Batman, Batcaverna, 23h47</div>
+        </div>
+        
+        <div class="scene-question" style="margin-top:0;">
+          🎯 <strong>Situação real de Combinação Simples:</strong> A <em>ordem não importa</em> —
+          escolher Superman + Flash + Aquaman é a mesma equipe que Flash + Aquaman + Superman.
+          Queremos saber <strong>quantos grupos de 3</strong> podemos formar com os 6 heróis.
+        </div>
+      </div>
+      
+      <!-- Direita: Interativo -->
+      <div style="background: rgba(255,215,0,0.04); border: 1px solid rgba(255,215,0,0.2); border-radius: 20px; padding: 32px 24px; text-align:center;">
+        <p style="font-size:13px; color:rgba(255,215,0,0.8); text-transform:uppercase; letter-spacing:2px; margin-bottom:24px; font-weight:700;">
+          Monte a equipe (Selecione 3)
+        </p>
+        <div class="heroes-grid" id="heroesGrid" style="gap:14px;">
+          <div class="hero-chip" data-hero="Superman">⚡ Superman</div>
+          <div class="hero-chip" data-hero="Mulher-Maravilha">🌟 Mulher-Maravilha</div>
+          <div class="hero-chip" data-hero="Flash">💨 Flash</div>
+          <div class="hero-chip" data-hero="Lanterna Verde">💚 Lanterna Verde</div>
+          <div class="hero-chip" data-hero="Aquaman">🌊 Aquaman</div>
+          <div class="hero-chip" data-hero="Ciborgue">🤖 Ciborgue</div>
+        </div>
+        <p style="font-size:12px; color:rgba(255,255,255,0.4); margin-top:28px; line-height:1.5;">
+          Tente formar diferentes combinações.<br/>O cálculo exato está no próximo slide! 👉
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 5: FORMULA -->
+<div class="slide slide-5" id="slide-4">
+  <p class="section-label anim-up">A Matemática</p>
+  <h2 class="slide-title anim-up" style="text-align:center;">A <span>Fórmula Geral</span></h2>
+  
+  <div class="anim-up" style="display:flex; gap:32px; align-items:stretch; max-width:960px; width:100%; margin-top:20px;">
+    
+    <!-- Esquerda: Fórmula -->
+    <div style="flex:1.2; background: linear-gradient(135deg, rgba(255,215,0,0.12), rgba(255,215,0,0.04)); border: 2px solid var(--bat-yellow); border-radius: 24px; padding: 40px; text-align: center; box-shadow: var(--glow); display:flex; flex-direction:column; justify-content:center;">
+      <div style="font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,215,0,0.8); margin-bottom: 32px;">Combinação de n elementos, tomados p a p</div>
+      <div style="font-family: 'Outfit', sans-serif; font-size: clamp(40px, 5vw, 64px); font-weight: 800; color: var(--bat-yellow); text-shadow: var(--glow-sm); line-height: 1.1; display: flex; align-items: center; justify-content: center; gap: 16px;">
+        <span>C<sub>n,p</sub> =</span>
+        <div style="display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle;">
+          <span style="border-bottom: 4px solid var(--bat-yellow); padding-bottom: 8px;">n!</span>
+          <span style="padding-top: 8px;">p! (n−p)!</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Direita: Variáveis e Exemplo -->
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px;">
+      <!-- Variáveis -->
+      <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 24px;">
+        <div style="display:grid; grid-template-columns: 40px 1fr; gap:12px; align-items:center; margin-bottom:16px;">
+          <div style="font-size:24px; font-weight:900; color:var(--bat-yellow); text-align:center; font-style:italic;">n</div>
+          <div style="font-size:14px; color:rgba(255,255,255,0.8);">Total de elementos disponíveis</div>
+        </div>
+        <div style="display:grid; grid-template-columns: 40px 1fr; gap:12px; align-items:center; margin-bottom:16px;">
+          <div style="font-size:24px; font-weight:900; color:var(--bat-yellow); text-align:center; font-style:italic;">p</div>
+          <div style="font-size:14px; color:rgba(255,255,255,0.8);">Quantidade a ser escolhida</div>
+        </div>
+        <div style="display:grid; grid-template-columns: 40px 1fr; gap:12px; align-items:center;">
+          <div style="font-size:24px; font-weight:900; color:var(--bat-yellow); text-align:center;">!</div>
+          <div style="font-size:14px; color:rgba(255,255,255,0.8);">Fatorial (ex: 3! = 3 × 2 × 1)</div>
+        </div>
+      </div>
+      
+      <!-- Exemplo Batman -->
+      <div style="background: rgba(255,215,0,0.1); border: 1.5px solid rgba(255,215,0,0.3); border-radius: 16px; padding: 24px; flex-grow:1; display:flex; flex-direction:column; justify-content:center;">
+        <div style="font-size:12px; font-weight:700; color:var(--bat-yellow); text-transform:uppercase; letter-spacing:2px; margin-bottom:12px;">🦇 A Missão do Batman</div>
+        <div style="font-size:15px; color:rgba(255,255,255,0.9); line-height:1.8;">
+          <strong>n</strong> = 6 heróis &nbsp;|&nbsp; <strong>p</strong> = 3 escolhidos <br/>
+          C<sub>6,3</sub> = 6! / (3! · 3!) <br/>
+          C<sub>6,3</sub> = (6 × 5 × 4) / (3 × 2 × 1) = <strong>20 formações!</strong>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<!-- SLIDE 6: QUIZ -->
+<div class="slide slide-6" id="slide-5">
+  <p class="section-label anim-up">Hora de Praticar!</p>
+  <h2 class="slide-title anim-up" style="text-align:center;">Questão <span>Interativa</span> 🦇</h2>
+  <div class="quiz-box anim-up" style="width:100%;">
+    <div class="quiz-question">
+      Batman possui <strong>8 gadgets diferentes</strong> no cinto de utilidades:
+      batarangue, gancho, bomba explosiva, gás paralisante, óculos de visão noturna,
+      disruptor eletrônico, detector de DNA e escudo. Para uma missão de infiltração,
+      ele precisa escolher apenas <strong>3 gadgets</strong>.
+      <br/><br/>
+      De quantas maneiras diferentes Batman pode selecionar os 3 gadgets?
+    </div>
+    <div class="options-grid" id="optionsGrid">
+      <button class="option-btn" id="opt-a" onclick="checkAnswer('a')">
+        <span class="opt-letter">A</span> 24 maneiras
+      </button>
+      <button class="option-btn" id="opt-b" onclick="checkAnswer('b')">
+        <span class="opt-letter">B</span> 40.320 maneiras
+      </button>
+      <button class="option-btn" id="opt-c" onclick="checkAnswer('c')">
+        <span class="opt-letter">C</span> 56 maneiras
+      </button>
+      <button class="option-btn" id="opt-d" onclick="checkAnswer('d')">
+        <span class="opt-letter">D</span> 336 maneiras
+      </button>
+    </div>
+    <div class="feedback-panel" id="feedbackPanel"></div>
+    <div class="step-by-step" id="stepByStep">
+      <p style="font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(255,215,0,0.7); margin-bottom:12px;">Resolução passo a passo:</p>
+      <div class="step"><div class="step-num">1</div><div class="step-text">Identificar: <strong>n = 8</strong> gadgets disponíveis, <strong>p = 3</strong> a serem escolhidos</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">Cancelar o 5! de cima e de baixo: <strong>C(8,3) = (8 × 7 × 6) / (3 × 2 × 1)</strong></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">Resultado: <strong>336 / 6 = 56 maneiras! 🦇</strong></div></div>
+    </div>
+    <button class="reset-btn" id="resetBtn" onclick="resetQuiz()">↺ Tentar Novamente</button>
+  </div>
+</div>
+
+</div><!-- end presentation -->
+
+<div class="nav">
+  <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" disabled>&#8592;</button>
+  <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">&#8594;</button>
+</div>
+
+<div class="slide-counter" id="slideCounter"></div>
+
+<script>
+  // Background bats
+  const batBg = document.getElementById('batBg');
+  const batSVGStr = '<svg viewBox="0 0 50 25" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M25 5 C15 5 5 15 0 22 C5 20 10 19 15 21 C17 15 21 12 25 12 C29 12 33 15 35 21 C40 19 45 20 50 22 C45 15 35 5 25 5Z"/><path d="M25 11 C22 11 20 14 19 17 C21 16 23 15 25 15 C27 15 29 16 31 17 C30 14 28 11 25 11Z"/></svg>';
+  for (let i = 0; i < 10; i++) {
+    const bat = document.createElement('div');
+    bat.className = 'bat-icon';
+    bat.style.cssText = 'left:' + (Math.random()*100) + '%;width:' + (30+Math.random()*50) + 'px;color:#FFD700;animation-duration:' + (8+Math.random()*14) + 's;animation-delay:-' + (Math.random()*20) + 's;';
+    bat.innerHTML = batSVGStr;
+    batBg.appendChild(bat);
+  }
+
+  // Slide logic
+  const totalSlides = 6;
+  let current = 0;
+
+  function buildDots() {
+    const counter = document.getElementById('slideCounter');
+    counter.innerHTML = '';
+    for (let i = 0; i < totalSlides; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'dot' + (i === 0 ? ' active' : '');
+      dot.id = 'dot-' + i;
+      dot.onclick = (function(idx){ return function(){ goToSlide(idx); }; })(i);
+      counter.appendChild(dot);
+    }
+  }
+
+  function goToSlide(target) {
+    const slides = document.querySelectorAll('.slide');
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit-left');
+    setTimeout(function(){ slides[current < 0 ? 0 : current].classList.remove('exit-left'); }, 650);
+    current = target;
+    slides[current].classList.add('active');
+
+    // Reset animations
+    slides[current].querySelectorAll('.anim-up').forEach(function(el) {
+      el.style.animation = 'none';
+      el.offsetHeight;
+      el.style.animation = '';
+    });
+
+    document.getElementById('prevBtn').disabled = current === 0;
+    document.getElementById('nextBtn').disabled = current === totalSlides - 1;
+
+    document.querySelectorAll('.dot').forEach(function(d, i) {
+      d.classList.toggle('active', i === current);
+    });
+
+    var pct = ((current + 1) / totalSlides) * 100;
+    document.getElementById('progressBar').style.width = pct + '%';
+  }
+
+  function changeSlide(dir) {
+    var target = current + dir;
+    if (target < 0 || target >= totalSlides) return;
+    goToSlide(target);
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === ' ') changeSlide(1);
+    if (e.key === 'ArrowLeft') changeSlide(-1);
+  });
+
+  // Hero chips
+  var heroGrid = document.getElementById('heroesGrid');
+  if (heroGrid) {
+    heroGrid.addEventListener('click', function(e) {
+      var chip = e.target.closest('.hero-chip');
+      if (!chip) return;
+      var selected = heroGrid.querySelectorAll('.selected');
+      if (chip.classList.contains('selected')) {
+        chip.classList.remove('selected');
+      } else if (selected.length < 3) {
+        chip.classList.add('selected');
+      }
+    });
+  }
+
+  // Quiz
+  function checkAnswer(val) {
+    var buttons = document.querySelectorAll('.option-btn');
+    var feedback = document.getElementById('feedbackPanel');
+    var steps = document.getElementById('stepByStep');
+    var resetBtn = document.getElementById('resetBtn');
+
+    buttons.forEach(function(b){ b.disabled = true; });
+
+    if (val === 'c') {
+      document.getElementById('opt-c').classList.add('correct');
+      feedback.className = 'feedback-panel correct-fb show';
+      feedback.innerHTML = '🎉 <strong>Correto!</strong> C(8,3) = 56 maneiras diferentes. Batman pode montar 56 combinações distintas de gadgets!';
+    } else {
+      document.getElementById('opt-' + val).classList.add('wrong');
+      document.getElementById('opt-c').classList.add('correct');
+      feedback.className = 'feedback-panel wrong-fb show';
+      feedback.innerHTML = '❌ <strong>Quase!</strong> A resposta correta é <strong>56 maneiras</strong> (letra C). Veja a resolução abaixo:';
+    }
+
+    steps.classList.add('show');
+    resetBtn.classList.add('show');
+  }
+
+  function resetQuiz() {
+    var buttons = document.querySelectorAll('.option-btn');
+    buttons.forEach(function(b){ b.disabled = false; b.classList.remove('correct','wrong'); });
+    document.getElementById('feedbackPanel').className = 'feedback-panel';
+    document.getElementById('feedbackPanel').innerHTML = '';
+    document.getElementById('stepByStep').classList.remove('show');
+    document.getElementById('resetBtn').classList.remove('show');
+  }
+
+  buildDots();
+  document.getElementById('progressBar').style.width = ((1/totalSlides)*100) + '%';
+</script>
+</body>
+</html>
